@@ -2,7 +2,7 @@
 
 //
 // dwislpy-flex.ll
-//  
+//
 // This is an implementation of a lexical analysis tool for the DWISLPY
 // language. It is written using Flex as a series of token descriptions
 // (given as regular expressions) along with a specification of the
@@ -34,11 +34,11 @@
 // for providing a working example that I could draw from) and also
 // a series of method definitions for the DWISLPY Lexer class.
 //
-    
+
     #include <string>
     #include "dwislpy-util.hh"
     #include "dwislpy-flex.hh"
-    
+
     #include "dwislpy-bison.tab.hh"       // Defines DWISLPY::Parser::token
                                           // and DWISLPY::Parser::PLUS, etc.
     //
@@ -49,7 +49,7 @@
     //
     #undef  YY_DECL
     #define YY_DECL int DWISLPY::Lexer::yylex(DWISLPY::Parser::semantic_type* const lval, location_type* loc)
-    
+
     //
     // Some configuration of Flex.
     //
@@ -60,8 +60,8 @@
     // What's executed at the start of every yylex call when a rule has
     // matched a sequence of characters in the source.
     //
-    // #define YY_USER_ACTION advance_by_text(std::string{ yytext }, loc); 
-         
+    // #define YY_USER_ACTION advance_by_text(std::string{ yytext }, loc);
+
     // * * * * *
     // class DWISLPY::Lexer
     //
@@ -140,7 +140,7 @@
             }
         }
         return spaces + 1;
-    } 
+    }
 
     // debug_token
     //
@@ -167,7 +167,7 @@
         std::cout << ":" << l->begin.line << ":" << l->begin.column;
         std::cout << std::endl;
     }
-    
+
     //
     // lx.issue(tkn,txt,l)
     //
@@ -184,8 +184,8 @@
         advance_by_text(txt,l);
         // debug_token(tkn_typ,txt,l);
         return tkn_typ;
-    }  
-    
+    }
+
     //
     // lx.locate(l)
     //
@@ -216,8 +216,8 @@
 %option yyclass="DWISLPY::Lexer"
 %option noyywrap
 %option c++
-    
-INDT    \t|" " 
+
+INDT    \t|" "
 EOLN    \r\n|\n\r|\n|\r
 NMBR    (0|[1-9][0-9]*)
 NAME    [_a-zA-Z][_a-zA-Z0-9]*
@@ -225,7 +225,7 @@ WSPC    {INDT}
 
 
 %%
-    
+
 %{
     // Tie with Bison.
     // Code is executed at the beginning of yylex.
@@ -240,7 +240,7 @@ WSPC    {INDT}
 
 <INITIAL>{WSPC}+ {
     //
-    // Handle some indentation at the start of a line.. 
+    // Handle some indentation at the start of a line..
     //
     std::string indent { yytext };
     advance_by_text(indent, loc);
@@ -252,19 +252,19 @@ WSPC    {INDT}
     if (last_level == level) {
         // If the same, no INDENT/DEDENT.
         BEGIN(MID_LINE);
-    
+
     } else if (last_level > level) {
         // If smaller, issue some DEDENTs.
         yyless(0);
         BEGIN(DEDENT);
-    
+
     } else {
         // If bigger, issue an INDENT. Push onto the stack.
         indents.push_back(level);
         BEGIN(MID_LINE);
         return issue(token::Token_INDT,"",loc);
-    
-    }        
+
+    }
 }
 
 <INITIAL>. {
@@ -279,12 +279,12 @@ WSPC    {INDT}
         //
         // Issue DEDENTs if we were indented to some level.
         //
-        BEGIN(DEDENT);        
+        BEGIN(DEDENT);
     } else {
         BEGIN(MID_LINE);
     }
 }
-    
+
 <DEDENT>{WSPC}+ {
     //
     // Issue DEDENTs and pop the stack until this level
@@ -293,24 +293,24 @@ WSPC    {INDT}
     std::string indent { yytext };
     int level = indent_column(indent);
     int last_level  = indents.back();
-    
+
     if (last_level < level) {
         //
         // Popping skipped the level we want. ERROR!
-        // 
+        //
         bail(loc, "Bad indentation.");
-    
+
     } else if (last_level > level) {
         //
         // Issue a DEDENT and pop.
-        //  
+        //
         yyless(0);
         indents.pop_back();
         return issue(token::Token_DEDT,"",loc);
-    
+
     } else {
         BEGIN(MID_LINE);
-    }        
+    }
 }
 
 <DEDENT>. {
@@ -326,18 +326,18 @@ WSPC    {INDT}
         // This should never happen.
         //
         bail(loc, "Bad indentation.");
-    
+
     } else if (last_level > level) {
         //
         // Issue a DEDENT and pop.
-        //  
+        //
         indents.pop_back();
         return issue(token::Token_DEDT,"",loc);
     } else {
         BEGIN(MID_LINE);
     }
 }
-            
+
 <MID_LINE>("#"[^\n\r]*)?{EOLN} {
     // Handle ends of lines (maybe preceded by a comment).
     BEGIN(INITIAL);
@@ -356,15 +356,23 @@ WSPC    {INDT}
 <MID_LINE>"=" {
     return issue(token::Token_ASGN,yytext,loc);
 }
-    
+
+<MID_LINE>"+=" {
+    return issue(token::Token_PLUSEQUAL,yytext,loc);
+}
+
+<MID_LINE>"-=" {
+    return issue(token::Token_MINUSEQUAL,yytext,loc);
+}
+
 <MID_LINE>"(" {
     return issue(token::Token_LPAR,yytext,loc);
 }
-    
+
 <MID_LINE>")" {
     return issue(token::Token_RPAR,yytext,loc);
 }
-     
+
 <MID_LINE>"+" {
     return issue(token::Token_PLUS,yytext,loc);
 }
@@ -372,11 +380,11 @@ WSPC    {INDT}
 <MID_LINE>"-" {
     return issue(token::Token_MNUS,yytext,loc);
 }
- 
+
 <MID_LINE>"*" {
     return issue(token::Token_TMES,yytext,loc);
 }
-    
+
 <MID_LINE>"//" {
     return issue(token::Token_IDIV,yytext,loc);
 }
@@ -384,39 +392,39 @@ WSPC    {INDT}
 <MID_LINE>"%" {
     return issue(token::Token_IMOD,yytext,loc);
 }
-    
+
 <MID_LINE>print {
     return issue(token::Token_PRNT,yytext,loc);
 }
-    
+
 <MID_LINE>pass {
     return issue(token::Token_PASS,yytext,loc);
 }
-    
+
 <MID_LINE>input {
     return issue(token::Token_INPT,yytext,loc);
 }
-    
+
 <MID_LINE>int {
     return issue(token::Token_INTC,yytext,loc);
 }
-    
+
 <MID_LINE>str {
     return issue(token::Token_STRC,yytext,loc);
 }
-    
+
 <MID_LINE>True {
     return issue(token::Token_TRUE,yytext,loc);
 }
-    
+
 <MID_LINE>False {
     return issue(token::Token_FALS,yytext,loc);
 }
-    
+
 <MID_LINE>None {
     return issue(token::Token_NONE,yytext,loc);
 }
-    
+
 <MID_LINE>{NAME} {
     // Handle identifier names.
     yylval->build<std::string>(yytext);
@@ -441,7 +449,5 @@ WSPC    {INDT}
 <MID_LINE>. {
     bail(loc, "Unexpected character: " + std::string{yytext});
 }
-    
+
 %%
-
-

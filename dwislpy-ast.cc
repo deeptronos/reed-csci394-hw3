@@ -17,7 +17,7 @@
 //
 // Below are the implementations of methods for AST nodes. They are organized
 // into groups. The first group represents the DWISLPY interpreter by giving
-// the code for 
+// the code for
 //
 //    Prgm::run, Blck::exec, Stmt::exec, Expn::eval
 //
@@ -30,7 +30,7 @@
 //
 // Helper function that converts a DwiSlpy value into a string.
 // This is meant to be used by `print` and also `str`.
-// 
+//
 std::string to_string(Valu v) {
     if (std::holds_alternative<int>(v)) {
         return std::to_string(std::get<int>(v));
@@ -97,23 +97,42 @@ std::optional<Valu> Blck::exec(const Defs& defs, Ctxt& ctxt) const {
         std::optional<Valu> rv = s->exec(defs,ctxt);
         if (rv.has_value()) {
             return rv;
-        } 
+        }
     }
     return std::nullopt;
 }
 
 std::optional<Valu> Asgn::exec(const Defs& defs,
-                               Ctxt& ctxt) const {
+                               Ctxt& ctxt) const { // ctxt is an ordered map of named value
     ctxt[name] = expn->eval(defs,ctxt);
     return std::nullopt;
 }
+
+std::optional<Valu> PlusEqual::exec(const Defs& defs,
+                               Ctxt& ctxt) const {
+
+//from Lkup
+if (ctxt.count(name) > 0) {
+    return ctxt.at(name);
+} else {
+    std::string msg = "Run-time error: variable '" + name +"'";
+    msg += "not defined.";
+    throw DwislpyError { where(), msg };
+}
+// assign an int and expression
+//if they are both the same type (int/string)
+//Valu =
+
+//write code to convert a valu to a bool
+// -> (consider each type)
+
 
 std::optional<Valu> Pass::exec([[maybe_unused]] const Defs& defs,
                                [[maybe_unused]] Ctxt& ctxt) const {
     // does nothing!
     return std::nullopt;
 }
-  
+
 std::optional<Valu> Prnt::exec(const Defs& defs, Ctxt& ctxt) const {
     std::cout << to_string(expn->eval(defs,ctxt)) << std::endl;
     return std::nullopt;
@@ -142,7 +161,7 @@ Valu Plus::eval(const Defs& defs, const Ctxt& ctxt) const {
     } else {
         std::string msg = "Run-time error: wrong operand type for plus.";
         throw DwislpyError { where(), msg };
-    }        
+    }
 }
 
 Valu Mnus::eval(const Defs& defs, const Ctxt& ctxt) const {
@@ -156,7 +175,7 @@ Valu Mnus::eval(const Defs& defs, const Ctxt& ctxt) const {
     } else {
         std::string msg = "Run-time error: wrong operand type for minus.";
         throw DwislpyError { where(), msg };
-    }        
+    }
 }
 
 Valu Tmes::eval(const Defs& defs, const Ctxt& ctxt) const {
@@ -171,7 +190,7 @@ Valu Tmes::eval(const Defs& defs, const Ctxt& ctxt) const {
         // Exercise: make this work for (int,str) and (str,int).
         std::string msg = "Run-time error: wrong operand type for times.";
         throw DwislpyError { where(), msg };
-    }        
+    }
 }
 
 Valu IDiv::eval(const Defs& defs, const Ctxt& ctxt) const {
@@ -185,11 +204,11 @@ Valu IDiv::eval(const Defs& defs, const Ctxt& ctxt) const {
             throw DwislpyError { where(), "Run-time error: division by 0."};
         } else {
             return Valu {ln / rn};
-        } 
+        }
     } else {
         std::string msg = "Run-time error: wrong operand type for quotient.";
         throw DwislpyError { where(), msg };
-    }        
+    }
 }
 
 Valu IMod::eval(const Defs& defs, const Ctxt& ctxt) const {
@@ -203,11 +222,11 @@ Valu IMod::eval(const Defs& defs, const Ctxt& ctxt) const {
             throw DwislpyError { where(), "Run-time error: division by 0."};
         } else {
             return Valu {ln % rn};
-        } 
+        }
     } else {
         std::string msg = "Run-time error: wrong operand type for remainder.";
         throw DwislpyError { where(), msg };
-    }        
+    }
 }
 Valu Ltrl::eval([[maybe_unused]] const Defs& defs,
                 [[maybe_unused]] const Ctxt& ctxt) const {
@@ -320,6 +339,20 @@ void Stmt::output(std::ostream& os) const {
 void Asgn::output(std::ostream& os, std::string indent) const {
     os << indent;
     os << name << " = ";
+    expn->output(os);
+    os << std::endl;
+}
+
+void PlusEqual::output(std::ostream& os, std::string indent) const {
+    os << indent;
+    os << name << " += ";
+    expn->output(os);
+    os << std::endl;
+}
+
+void MinusEqual::output(std::ostream& os, std::string indent) const {
+    os << indent;
+    os << name << " -= ";
     expn->output(os);
     os << std::endl;
 }
@@ -447,6 +480,14 @@ void Blck::dump(int level) const {
 void Asgn::dump(int level) const {
     dump_indent(level);
     std::cout << "ASGN" << std::endl;
+    dump_indent(level+1);
+    std::cout << name << std::endl;
+    expn->dump(level+1);
+}
+
+void PlusEqual::dump(int level) const { //+=
+    dump_indent(level);
+    std::cout << "PLEQ" << std::endl;
     dump_indent(level+1);
     std::cout << name << std::endl;
     expn->dump(level+1);
