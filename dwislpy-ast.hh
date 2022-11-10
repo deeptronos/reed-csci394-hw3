@@ -110,7 +110,7 @@ typedef std::shared_ptr<MinusEqual> MinusEqual_ptr;
 typedef std::shared_ptr<Land> Land_ptr;
 typedef std::shared_ptr<Lorr> Lorr_ptr;
 typedef std::shared_ptr<Less> Less_ptr;
-typedef std::shared_ptr<LsEq> LsEq_ptr;
+typedef std::shared_ptr<Lsql> Lsql_ptr;
 typedef std::shared_ptr<Equl> Equl_ptr;
 typedef std::shared_ptr<Dont> Dont_ptr;
 typedef std::shared_ptr<Doif> Doif_ptr;
