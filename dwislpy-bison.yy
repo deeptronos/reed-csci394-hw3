@@ -52,14 +52,14 @@
 %token               ASGN "="
 %token               PLUSEQUAL "+="
 %token               MINUSEQUAL "-="
-%token               LAND "and"
-%token               LORR "or"
-%token               LESS "<"
-%token               LSQL "<="
-%token               EQUL "=="
-%token               DONT "not"
-%token               DOIF "if"
-%token               DOWH "while"
+%token               LAND "="
+%token               LORR "="
+%token               LESS "="
+%token               LEQL "="
+%token               EQUL "="
+%token               DONT "="
+%token               DOIF "="
+%token               DOWH "="
 %token               PLUS "+"
 %token               MNUS "-"
 %token               TMES "*"
@@ -131,11 +131,29 @@ stmt:
 | NAME MINUSEQUAL expn EOLN {
       $$ = MinusEqual_ptr { new MinusEqual {$1,$3,lexer.locate(@2)} };
   }
+| NAME LESS expn EOLN {
+      $$ = MinusEqual_ptr { new MinusEqual {$1,$3,lexer.locate(@2)} };
+  }
+| NAME LSQL expn EOLN {
+      $$ = Leql_ptr { new Lsql {$1,$3,lexer.locate(@2)} };
+  }
+| NAME EQUL expn EOLN {
+      $$ = Equal_ptr { new Equal {$1,$3,lexer.locate(@2)} };
+  }
+| NAME DONT expn EOLN {
+      $$ = Dont_ptr { new Dont {$1,$3,lexer.locate(@2)} };
+  }
 | NAME DOIF expn EOLN {
       $$ = Doif_ptr { new Doif {$1,$3,lexer.locate(@2)} };
   }
 | NAME DOWH expn EOLN {
       $$ = Dowh_ptr { new Dowh {$1,$3,lexer.locate(@2)} };
+  }
+| NAME LAND expn EOLN {
+      $$ = Land_ptr { new Land {$1,$3,lexer.locate(@2)} };
+  }
+| NAME LORR expn EOLN {
+      $$ = Lorr_ptr { new Lorr {$1,$3,lexer.locate(@2)} };
   }
 | PASS EOLN {
       $$ = Pass_ptr { new Pass {lexer.locate(@1)} };
@@ -160,24 +178,6 @@ expn:
   }
 | expn IMOD expn {
       $$ = IMod_ptr { new IMod {$1,$3,lexer.locate(@2)} };
-  }
-| expn LAND expn EOLN {
-      $$ = Land_ptr { new Land {$1,$3,lexer.locate(@2)} };
-  }
-| expn LORR expn EOLN {
-      $$ = Lorr_ptr { new Lorr {$1,$3,lexer.locate(@2)} };
-  }
-| expn LESS expn EOLN {
-      $$ = Less_ptr { new Less {$1,$3,lexer.locate(@2)} };
-  }
-| expn LSQL expn EOLN {
-      $$ = Lsql_ptr { new Lsql {$1,$3,lexer.locate(@2)} };
-  }
-| expn EQUL expn EOLN {
-      $$ = Equal_ptr { new Equal {$1,$3,lexer.locate(@2)} };
-  }
-| expn DONT expn EOLN {
-      $$ = Dont_ptr { new Dont {$1,$3,lexer.locate(@2)} };
   }
 | NMBR {
       $$ = Ltrl_ptr { new Ltrl {Valu {$1},lexer.locate(@1)} };
