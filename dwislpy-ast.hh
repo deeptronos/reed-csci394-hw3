@@ -1,8 +1,6 @@
 #ifndef __DWISLPY_AST_H_
 #define __DWISLPY_AST_H_
 
-// Ba bababa 
-
 // dwislpy-ast.hh
 //
 // Object classes used by the parser to represent the syntax trees of
@@ -54,6 +52,10 @@ class Stmt;
 class Pass;
 class Asgn;
 class Prnt;
+class PlusEqual; // for plus equal statement
+class MinusEqual;
+class Doif;
+class Dowh; // do while
 //
 class Expn;
 class Plus;
@@ -69,6 +71,12 @@ class IntC;
 class StrC;
 class Lkup;
 class Ltrl;
+class Land;
+class Lorr; //or
+class Less;
+class LsEq;
+class Equl;
+class Dont;
 
 //
 // We alias some types, including pointers and vectors.
@@ -77,33 +85,43 @@ class Ltrl;
 typedef std::string Name;
 typedef std::unordered_map<Name,Valu> Ctxt;
 //
-typedef std::shared_ptr<Lkup> Lkup_ptr; 
-typedef std::shared_ptr<Ltrl> Ltrl_ptr; 
-typedef std::shared_ptr<IntC> IntC_ptr; 
-typedef std::shared_ptr<StrC> StrC_ptr; 
-typedef std::shared_ptr<Inpt> Inpt_ptr; 
-typedef std::shared_ptr<Plus> Plus_ptr; 
-typedef std::shared_ptr<Mnus> Mnus_ptr; 
+typedef std::shared_ptr<Lkup> Lkup_ptr;
+typedef std::shared_ptr<Ltrl> Ltrl_ptr;
+typedef std::shared_ptr<IntC> IntC_ptr;
+typedef std::shared_ptr<StrC> StrC_ptr;
+typedef std::shared_ptr<Inpt> Inpt_ptr;
+typedef std::shared_ptr<Plus> Plus_ptr;
+typedef std::shared_ptr<Mnus> Mnus_ptr;
 typedef std::shared_ptr<Tmes> Tmes_ptr;
 typedef std::shared_ptr<IDiv> IDiv_ptr;
 typedef std::shared_ptr<IMod> IMod_ptr;
 //
-typedef std::shared_ptr<Pass> Pass_ptr; 
-typedef std::shared_ptr<Prnt> Prnt_ptr; 
+typedef std::shared_ptr<Pass> Pass_ptr;
+typedef std::shared_ptr<Prnt> Prnt_ptr;
 typedef std::shared_ptr<Asgn> Asgn_ptr;
 //
-typedef std::shared_ptr<Prgm> Prgm_ptr; 
-typedef std::shared_ptr<Defn> Defn_ptr; 
-typedef std::shared_ptr<Blck> Blck_ptr; 
-typedef std::shared_ptr<Stmt> Stmt_ptr; 
+typedef std::shared_ptr<Prgm> Prgm_ptr;
+typedef std::shared_ptr<Defn> Defn_ptr;
+typedef std::shared_ptr<Blck> Blck_ptr;
+typedef std::shared_ptr<Stmt> Stmt_ptr;
 typedef std::shared_ptr<Expn> Expn_ptr;
+typedef std::shared_ptr<PlusEqual> PlusEqual_ptr; // create a pointer
+typedef std::shared_ptr<MinusEqual> MinusEqual_ptr;
+typedef std::shared_ptr<Land> Land_ptr;
+typedef std::shared_ptr<Lorr> Lorr_ptr;
+typedef std::shared_ptr<Less> Less_ptr;
+typedef std::shared_ptr<LsEq> LsEq_ptr;
+typedef std::shared_ptr<Equl> Equl_ptr;
+typedef std::shared_ptr<Dont> Dont_ptr;
+typedef std::shared_ptr<Doif> Doif_ptr;
+typedef std::shared_ptr<Dowh> Dowh_ptr;
 //
 typedef std::vector<Stmt_ptr> Stmt_vec;
 typedef std::vector<Expn_ptr> Expn_vec;
 typedef std::vector<Name> Name_vec;
 typedef std::vector<Defn_ptr> Defs;
 //
-    
+
 //
 //
 // ************************************************************
@@ -114,7 +132,7 @@ typedef std::vector<Defn_ptr> Defs;
 //
 
 //
-// class AST 
+// class AST
 //
 // Cover top-level type for all "abstract" syntax tree classes.
 // I.e. this is *the* abstract class (in the OO sense) that all
@@ -219,7 +237,7 @@ public:
     Expn_ptr expn;
     Asgn(Name x, Expn_ptr e, Locn l) : Stmt {l}, name {x}, expn {e} { }
     virtual ~Asgn(void) = default;
-    virtual std::optional<Valu> exec(const Defs& defs, Ctxt& ctxt) const;
+    virtual std::optional<Valu> exec(const Defs& defs, Ctxt& ctxt) const; //exec does not always return a value
     virtual void output(std::ostream& os, std::string indent) const;
     virtual void dump(int level = 0) const;
 };
@@ -245,6 +263,28 @@ class Pass : public Stmt {
 public:
     Pass(Locn l) : Stmt {l} { }
     virtual ~Pass(void) = default;
+    virtual std::optional<Valu> exec(const Defs& defs, Ctxt& ctxt) const;
+    virtual void output(std::ostream& os, std::string indent) const;
+    virtual void dump(int level = 0) const;
+};
+
+class PlusEqual : public Stmt {
+public:
+    Name     name;
+    Expn_ptr expn;
+    PlusEqual(Name x, Expn_ptr e, Locn l) : Stmt {l}, name {x}, expn {e} { }
+    virtual ~PlusEqual(void) = default;
+    virtual std::optional<Valu> exec(const Defs& defs, Ctxt& ctxt) const;
+    virtual void output(std::ostream& os, std::string indent) const;
+    virtual void dump(int level = 0) const;
+};
+
+class MinusEqual : public Stmt {
+public:
+    Name     name;
+    Expn_ptr expn;
+    MinusEqual(Name x, Expn_ptr e, Locn l) : Stmt {l}, name {x}, expn {e} { }
+    virtual ~MinusEqual(void) = default;
     virtual std::optional<Valu> exec(const Defs& defs, Ctxt& ctxt) const;
     virtual void output(std::ostream& os, std::string indent) const;
     virtual void dump(int level = 0) const;
@@ -432,6 +472,18 @@ public:
     Expn_ptr expn;
     StrC(Expn_ptr e, Locn lo) : Expn {lo}, expn {e} { }
     virtual ~StrC(void) = default;
+    virtual Valu eval(const Defs& defs, const Ctxt& ctxt) const;
+    virtual void output(std::ostream& os) const;
+    virtual void dump(int level = 0) const;
+};
+
+class And : public Expn {
+public:
+    Expn_ptr left;
+    Expn_ptr rght;
+    Plus(Expn_ptr lf, Expn_ptr rg, Locn lo)
+        : Expn {lo}, left {lf}, rght {rg} { }
+    virtual ~And(void) = default;
     virtual Valu eval(const Defs& defs, const Ctxt& ctxt) const;
     virtual void output(std::ostream& os) const;
     virtual void dump(int level = 0) const;

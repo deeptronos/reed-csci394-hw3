@@ -365,6 +365,38 @@ WSPC    {INDT}
     return issue(token::Token_MINUSEQUAL,yytext,loc);
 }
 
+<MID_LINE>"and" {
+    return issue(token::Token_LAND,yytext,loc);
+}
+
+<MID_LINE>"or" {
+    return issue(token::Token_PLUSEQUAL,yytext,loc);
+}
+
+<MID_LINE>"<" {
+    return issue(token::Token_LESS,yytext,loc);
+}
+
+<MID_LINE>"<=" {
+    return issue(token::Token_LSQL,yytext,loc);
+}
+
+<MID_LINE>"==" {
+    return issue(token::Token_EQUAL,yytext,loc);
+}
+
+<MID_LINE>"not" {
+    return issue(token::Token_DONT,yytext,loc);
+}
+
+<MID_LINE>"if" {
+    return issue(token::Token_DOIF,yytext,loc);
+}
+
+<MID_LINE>"while" {
+    return issue(token::Token_DOWH,yytext,loc);
+}
+
 <MID_LINE>"(" {
     return issue(token::Token_LPAR,yytext,loc);
 }
