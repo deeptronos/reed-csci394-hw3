@@ -190,6 +190,10 @@ public:
 class Defn : public AST {
 public:
     //
+    Name name; //name of Name type
+    Name_vec r; // r is a vector that points to all the names of the arguments
+    Blck_ptr body; // the body of the def, consisting of an indent, nest, dedent
+    //
     Defn(Locn lo) : AST {lo} { }
     virtual ~Defn(void) = default;
     //
