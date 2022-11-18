@@ -393,6 +393,10 @@ WSPC    {INDT}
     return issue(token::Token_DOIF,yytext,loc);
 }
 
+<MID_LINE>"else" {
+    return issue(token::Token_ELSE,yytext,loc);
+}
+
 <MID_LINE>"while" {
     return issue(token::Token_DOWH,yytext,loc);
 }

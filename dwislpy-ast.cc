@@ -13,20 +13,6 @@
 #include "dwislpy-util.hh"
 
 
-
-bool predicate(Valu v){
-	if(std::holds_alternative<int>(v)) {
-		int i = std::get<int>(v);
-		return (bool) i;
-	}else if (std::holds_alternative<float>(v)){
-		float f = std::get<float>(v);
-		return (bool)f;
-	}else if (std::holds_alternative<std::string>(v)){
-		return (bool)std::get<string>(v); // TODO make sure this works...
-	}
-}
-
-
 //
 // dwislpy-ast.cc
 //
@@ -123,26 +109,60 @@ std::optional<Valu> Asgn::exec(const Defs& defs,
     return std::nullopt;
 }
 
-std::optional<Valu> PlusEqual::exec(const Defs& defs,
+std::optional<Valu> PlusEqual::exec(const Defs& defs, // 
                                Ctxt& ctxt) const {
 
-//from Lkup
-if (ctxt.count(name) > 0) {
-    return ctxt.at(name);
-} else {
+// similar .... from Lkup?
+if (ctxt.count(name) == 0) {
     std::string msg = "Run-time error: variable '" + name +"'";
     msg += "not defined.";
     throw DwislpyError { where(), msg };
 }
 
+Valu x = ctxt.at(name); //turn x into a valu
+Valu e = expn->eval(defs,ctxt); 
 
-// assign an int and expression
-//if they are both the same type (int/string)
-//Valu =
+if(std::holds_alternative<int>(x) && std::holds_alternative<int>(e)) {
+	int ix = std::get<int>(x);
+    int ie = std::get<int>(e);
+    ctxt[name] = Valu {ix+ie};
+}else if (std::holds_alternative<std::string>(x) && std::holds_alternative<std::string>(e)){
+	int ix = std::get<string>(x);
+    int ie = std::get<string>(x);
+    ctxt[name] = Valu {ix+ie};
+}else {
+    std::string msg = "Run-time error: variable '" + name +"'";
+    msg += "incompatible type for +=.";
+    throw DwislpyError { where(), msg };
+}
+return std::nullopt; // not returning anything
+}
 
-//write code to convert a valu to a bool
-// -> (consider each type)
+std::optional<Valu> Doif::exec(const Defs& defs, Ctxt& ctxt) const {
+    if (predicate(expn)) {
+        std::optional<Valu> rv = if_->exec();
+        if (rv.has_value()) {
+            return rv;
+        } 
+    }else {
+        std::optional<Valu> rv = else_->exec();
+        if (rv.has_value()) {
+            return rv;
+        }
+    }
+    return std::nullopt;
+}
 
+std::optional<Valu> Dowh::exec(const Defs& defs,
+                               Ctxt& ctxt) const {
+    while (predicate(expn)) {
+        std::optional<Valu> rv = blck_->exec();
+        if (rv.has_value()) {
+            return rv;
+        } 
+    }
+    return std::nullopt; // what does this do?
+}
 
 std::optional<Valu> Pass::exec([[maybe_unused]] const Defs& defs,
                                [[maybe_unused]] Ctxt& ctxt) const {
@@ -161,6 +181,46 @@ std::optional<Valu> Prnt::exec(const Defs& defs, Ctxt& ctxt) const {
 //  - evaluate DWISLPY expressions within a runtime context to determine their
 //    (integer) value.
 //
+Valu Land::eval(const Defs& defs, const Ctxt& ctxt) const {
+    Valu lv = left->eval(defs,ctxt);
+    Valu rv = rght->eval(defs,ctxt);
+    return Valu {predicate(lv) && predicate(rv)};
+}
+
+Valu Lorr::eval(const Defs& defs, const Ctxt& ctxt) const {
+    Valu lv = left->eval(defs,ctxt);
+    Valu rv = rght->eval(defs,ctxt);
+    return Valu {predicate(lv) || predicate(rv)};
+}
+
+Valu Less::eval(const Defs& defs, const Ctxt& ctxt) const {
+    Valu lv = left->eval(defs,ctxt);
+    Valu rv = rght->eval(defs,ctxt);
+    return Valu {predicate(lv) < predicate(rv)};
+}
+
+Valu LsEq::eval(const Defs& defs, const Ctxt& ctxt) const {
+    Valu lv = left->eval(defs,ctxt);
+    Valu rv = rght->eval(defs,ctxt);
+    return Valu {predicate(lv) <= predicate(rv)};
+}
+
+Valu Equl::eval(const Defs& defs, const Ctxt& ctxt) const {
+    Valu lv = left->eval(defs,ctxt);
+    Valu rv = rght->eval(defs,ctxt);
+    return Valu {predicate(lv)};
+}
+
+Valu Dont::eval(const Defs& defs, const Ctxt& ctxt) const {
+    Valu lv = left->eval(defs,ctxt);
+    Valu rv = rght->eval(defs,ctxt);
+    return Valu {predicate(lv) not predicate(rv)};
+}
+
+// not returns the flipped bool
+// if and while (exec)
+// these might return
+// return nullopt  if if and else don't return
 
 Valu Plus::eval(const Defs& defs, const Ctxt& ctxt) const {
     Valu lv = left->eval(defs,ctxt);

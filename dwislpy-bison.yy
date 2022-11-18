@@ -59,6 +59,7 @@
 %token               EQUL "=="
 %token               DONT "not"
 %token               DOIF "if"
+%token               ELSE "else"
 %token               DOWH "while"
 %token               PLUS "+"
 %token               MNUS "-"
@@ -153,11 +154,11 @@ stmt:
 | NAME MINUSEQUAL expn EOLN {
       $$ = MinusEqual_ptr { new MinusEqual {$1,$3,lexer.locate(@2)} };
   }
-| NAME DOIF expn EOLN {
-      $$ = Doif_ptr { new Doif {$1,$3,lexer.locate(@2)} };
+| DOIF LPAR expn RPAR COLN EOLN INDENT blck DEDENT EOLN ELSE INDENT blck DEDENT EOLN {
+      $$ = Doif_ptr { new Doif {$3,$8,$13,lexer.locate(@1)} };
   }
-| NAME DOWH expn EOLN {
-      $$ = Dowh_ptr { new Dowh {$1,$3,lexer.locate(@2)} };
+| DOWH LPAR expn RPAR COLN EOLN INDENT blck DEDENT EOLN {
+      $$ = Dowh_ptr { new Dowh {$3,$8,lexer.locate(@1)} };
   }
 | PASS EOLN {
       $$ = Pass_ptr { new Pass {lexer.locate(@1)} };

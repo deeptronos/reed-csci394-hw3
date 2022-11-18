@@ -300,6 +300,29 @@ public:
     virtual void dump(int level = 0) const;
 };
 
+class Doif : public Stmt {
+public:
+    Expn_ptr expn;
+    Blck_ptr if_;
+    Blck_ptr else_;
+    Doif(Expn_ptr e, Blck_ptr i, Blck_ptr el, Locn l) : Stmt {l}, expn {e}, if_ {i}, else_ {el} { }
+    virtual ~Doif(void) = default;
+    virtual std::optional<Valu> exec(const Defs& defs, Ctxt& ctxt) const; //exec does not always return a value
+    virtual void output(std::ostream& os, std::string indent) const;
+    virtual void dump(int level = 0) const;
+};
+
+class Dowh : public Stmt {
+public:
+    Expn_ptr expn;
+    Blck_ptr blck_;
+    Dowh(Expn_ptr e, Blck_ptr bl, Locn l) : Stmt {l}, expn {e}, blck_ {bl} { }
+    virtual ~Dowh(void) = default;
+    virtual std::optional<Valu> exec(const Defs& defs, Ctxt& ctxt) const; //exec does not always return a value
+    virtual void output(std::ostream& os, std::string indent) const;
+    virtual void dump(int level = 0) const;
+};
+
 class Retn : public Stmt {
 public:
     Retn(Name x, Expn_ptr e, Locn l) : Stmt {l} { }
