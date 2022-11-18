@@ -67,6 +67,10 @@
 %token               IMOD "%"
 %token               LPAR "("
 %token               RPAR ")"
+%token               DEFN "def"
+%token               COLN ":"
+%token               COMM ","
+%token               RETN "return"
 %token               NONE "None"
 %token               TRUE "True"
 %token               FALS "False"
@@ -94,12 +98,30 @@ main:
 ;
 
 prgm:
-  blck {
+   defs blck {
+      Defs ds = $1;
+      Blck_ptr b = $2;
+      $$ = Prgm_ptr { new Prgm {ds, b, b->where()} };
+  }
+|  blck {
       Defs ds { };
       Blck_ptr b = $1;
       $$ = Prgm_ptr { new Prgm {ds, b, b->where()} };
   }
 ;
+
+defs:
+  defs defn {
+      Defs ds = $1;
+      ds.push_back($2);
+      $$ = ss;
+  }
+  | defn {
+      Defs ds { };
+      ds.push_back($1);
+      $$ = ss;
+    }
+  ;
 
 blck:
   stms {

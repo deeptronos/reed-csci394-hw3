@@ -443,6 +443,10 @@ void Pass::output(std::ostream& os, std::string indent) const {
     os << indent << "pass" << std::endl;
 }
 
+void Retn::output(std::ostream& os, std::string indent) const {
+    os << indent << "return" << std::endl;
+}
+
 void Prnt::output(std::ostream& os, std::string indent) const {
     os << indent;
     os << "print";

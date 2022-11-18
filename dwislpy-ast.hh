@@ -125,7 +125,7 @@ typedef std::vector<Name> Name_vec;
 typedef std::shared_ptr<Retn> Retn_ptr;
 typedef std::shared_ptr<P> Pcall_ptr;
 typedef std::shared_ptr<F> Fcall_ptr;
-// type
+typedef std::vector<Defn> Defs;
 //
 //
 // ************************************************************

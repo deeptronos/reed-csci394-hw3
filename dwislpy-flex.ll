@@ -397,12 +397,28 @@ WSPC    {INDT}
     return issue(token::Token_DOWH,yytext,loc);
 }
 
+<MID_LINE>"return" {
+    return issue(token::Token_RETN,yytext,loc);
+}
+
 <MID_LINE>"(" {
     return issue(token::Token_LPAR,yytext,loc);
 }
 
 <MID_LINE>")" {
     return issue(token::Token_RPAR,yytext,loc);
+}
+
+<MID_LINE>"def" {
+    return issue(token::Token_DEFN,yytext,loc);
+}
+
+<MID_LINE>":" {
+    return issue(token::Token_COLN,yytext,loc);
+}
+
+<MID_LINE>"," {
+    return issue(token::Token_COMM,yytext,loc);
 }
 
 <MID_LINE>"+" {
