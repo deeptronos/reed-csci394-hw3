@@ -12,6 +12,21 @@
 #include "dwislpy-ast.hh"
 #include "dwislpy-util.hh"
 
+
+
+bool predicate(Valu v){
+	if(std::holds_alternative<int>(v)) {
+		int i = std::get<int>(v);
+		return (bool) i;
+	}else if (std::holds_alternative<float>(v)){
+		float f = std::get<float>(v);
+		return (bool)f;
+	}else if (std::holds_alternative<std::string>(v)){
+		return (bool)std::get<string>(v); // TODO make sure this works...
+	}
+}
+
+
 //
 // dwislpy-ast.cc
 //
