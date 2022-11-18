@@ -333,9 +333,18 @@ void Prgm::output(std::ostream& os) const {
 }
 
 void Defn::output(std::ostream& os) const {
-    // Your code goes here.
-    os << "def" << std::endl; // BOGUS to shut up compiler warning.
+		os << "def" << name << "(";
+		for (Name_vec name : r) {
+				name->output(os);
+				while name != r.back():
+					os << ",";
+		}
+		os << ") :";
+		body->output(os);
+		os << std::endl;
 }
+
+void Def::output(std::)
 
 void Blck::output(std::ostream& os, std::string indent) const {
     for (Stmt_ptr s : stmts) {
@@ -539,7 +548,10 @@ void Prgm::dump(int level) const {
 void Defn::dump(int level) const {
     dump_indent(level);
     std::cout << "DEFN" << std::endl;
-    // Your code goes here.
+		for (Name_vec name : r) {
+        name->dump(level+1);
+    }
+		body->dump(level+1);
 }
 
 void Blck::dump(int level) const {
@@ -714,4 +726,9 @@ void StrC::dump(int level) const {
     dump_indent(level);
     std::cout << "STRC" << std::endl;
     expn->dump(level+1);
+}
+
+void Retn::dump(int level) const {
+    dump_indent(level);
+    std::cout << "RETN" << std::endl;
 }

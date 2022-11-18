@@ -45,7 +45,7 @@ typedef std::variant<int, bool, std::string, none> Valu;
 //
 
 class Prgm;
-class Defn;
+class Defn; // is this def that's supposed to be written??
 class Blck;
 //
 class Stmt;
@@ -96,12 +96,12 @@ typedef std::shared_ptr<Tmes> Tmes_ptr;
 typedef std::shared_ptr<IDiv> IDiv_ptr;
 typedef std::shared_ptr<IMod> IMod_ptr;
 //
-typedef std::shared_ptr<Pass> Pass_ptr;
+typedef std::shared_ptr<Pass> Pass_ptr; // a pointer of type shared_ptr points to an object of type Pass
 typedef std::shared_ptr<Prnt> Prnt_ptr;
 typedef std::shared_ptr<Asgn> Asgn_ptr;
 //
 typedef std::shared_ptr<Prgm> Prgm_ptr;
-typedef std::shared_ptr<Defn> Defn_ptr;
+typedef std::shared_ptr<Defn> Defn_ptr; // is this the def i'm supposed to write??
 typedef std::shared_ptr<Blck> Blck_ptr;
 typedef std::shared_ptr<Stmt> Stmt_ptr;
 typedef std::shared_ptr<Expn> Expn_ptr;
@@ -119,9 +119,13 @@ typedef std::shared_ptr<Dowh> Dowh_ptr;
 typedef std::vector<Stmt_ptr> Stmt_vec;
 typedef std::vector<Expn_ptr> Expn_vec;
 typedef std::vector<Name> Name_vec;
-typedef std::vector<Defn_ptr> Defs;
 //
 
+//B2
+typedef std::shared_ptr<Retn> Retn_ptr;
+typedef std::shared_ptr<P> Pcall_ptr;
+typedef std::shared_ptr<F> Fcall_ptr;
+// type
 //
 //
 // ************************************************************
@@ -194,9 +198,8 @@ public:
     Name_vec r; // r is a vector that points to all the names of the arguments
     Blck_ptr body; // the body of the def, consisting of an indent, nest, dedent
     //
-
-    DEF NAME LPAR Name RPAR COLN EOLN <nest>
-    <nest> ::= INDT <block> DEDT
+    // DEF NAME LPAR Name RPAR COLN EOLN <nest>
+    // <nest> ::= INDT <block> DEDT
     Defn(Locn lo) : AST {lo} { }
     virtual ~Defn(void) = default;
     //
@@ -293,6 +296,15 @@ public:
     MinusEqual(Name x, Expn_ptr e, Locn l) : Stmt {l}, name {x}, expn {e} { }
     virtual ~MinusEqual(void) = default;
     virtual std::optional<Valu> exec(const Defs& defs, Ctxt& ctxt) const;
+    virtual void output(std::ostream& os, std::string indent) const;
+    virtual void dump(int level = 0) const;
+};
+
+class Retn : public Stmt {
+public:
+    Retn(Name x, Expn_ptr e, Locn l) : Stmt {l} { }
+    virtual ~Retn(void) = default;
+    virtual std::optional<Valu> exec(const Defs& defs, Ctxt& ctxt) const; //exec does not always return a value
     virtual void output(std::ostream& os, std::string indent) const;
     virtual void dump(int level = 0) const;
 };
