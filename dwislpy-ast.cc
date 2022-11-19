@@ -109,7 +109,7 @@ std::optional<Valu> Asgn::exec(const Defs& defs,
     return std::nullopt;
 }
 
-std::optional<Valu> PlusEqual::exec(const Defs& defs, // 
+std::optional<Valu> PlusEqual::exec(const Defs& defs, //
                                Ctxt& ctxt) const {
 
 // similar .... from Lkup?
@@ -120,7 +120,7 @@ if (ctxt.count(name) == 0) {
 }
 
 Valu x = ctxt.at(name); //turn x into a valu
-Valu e = expn->eval(defs,ctxt); 
+Valu e = expn->eval(defs,ctxt);
 
 if(std::holds_alternative<int>(x) && std::holds_alternative<int>(e)) {
 	int ix = std::get<int>(x);
@@ -138,12 +138,24 @@ if(std::holds_alternative<int>(x) && std::holds_alternative<int>(e)) {
 return std::nullopt; // not returning anything
 }
 
+bool predicate(Valu v){
+	if(std::holds_alternative<int>(v)) {
+		int i = std::get<int>(v);
+		return (bool) i;
+	}else if (std::holds_alternative<float>(v)){
+		float f = std::get<float>(v);
+		return (bool)f;
+	}else if (std::holds_alternative<std::string>(v)){
+	   return (bool)std::get<string>(v); // TODO make sure this works...
+	}
+}
+
 std::optional<Valu> Doif::exec(const Defs& defs, Ctxt& ctxt) const {
     if (predicate(expn)) {
         std::optional<Valu> rv = if_->exec();
         if (rv.has_value()) {
             return rv;
-        } 
+        }
     }else {
         std::optional<Valu> rv = else_->exec();
         if (rv.has_value()) {
@@ -159,7 +171,7 @@ std::optional<Valu> Dowh::exec(const Defs& defs,
         std::optional<Valu> rv = blck_->exec();
         if (rv.has_value()) {
             return rv;
-        } 
+        }
     }
     return std::nullopt; // what does this do?
 }
