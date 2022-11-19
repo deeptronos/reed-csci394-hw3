@@ -466,6 +466,17 @@ public:
     virtual void dump(int level = 0) const;
 };
 
+class Land : public Expn {
+public:
+	Expn_ptr left;
+	Expn_ptr rght;
+	Plus(Expn_ptr lf, Expn_ptr rg, Locn lo)
+	: Expn {lo}, left {lf}, rght {rg} { }
+	virtual ~And(void) = default;
+	virtual Valu eval(const Defs& defs, const Ctxt& ctxt) const;
+	virtual void output(std::ostream& os) const;
+	virtual void dump(int level = 0) const;
+};
 
 //
 // Lkup - variable use/look-up AST node
@@ -519,7 +530,7 @@ public:
     virtual void dump(int level = 0) const;
 };
 
-class And : public Expn {
+/*class And : public Expn { TODO is this okay.... our and class is Land so I'm removing this implementation and copying it to an above line.
 public:
     Expn_ptr left;
     Expn_ptr rght;
@@ -529,6 +540,7 @@ public:
     virtual Valu eval(const Defs& defs, const Ctxt& ctxt) const;
     virtual void output(std::ostream& os) const;
     virtual void dump(int level = 0) const;
-};
+};*/
+
 
 #endif

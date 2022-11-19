@@ -84,7 +84,7 @@
 %type <Stmt_vec> stms
 %type <Stmt_ptr> stmt
 %type <Expn_ptr> expn
-
+				//
 %%
 
 %start main;
@@ -143,7 +143,7 @@ stms:
       $$ = ss;
   }
 ;
-
+		//TODO Implement pattern matching for Defn (e.g.  DEF NAME LPAR Name RPAR COLN EOLN <nest>)
 stmt:
   NAME ASGN expn EOLN {
       $$ = Asgn_ptr { new Asgn {$1,$3,lexer.locate(@2)} };
