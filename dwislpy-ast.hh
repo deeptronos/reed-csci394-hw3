@@ -332,6 +332,21 @@ public:
     virtual void dump(int level = 0) const;
 };
 
+// class PCall
+//
+// Procedure call - Call a method which executes and returns control flow, but no data.
+class PCall : public Stmt {
+	Name_vec arguments; //
+};
+
+// class FCall
+//
+// Function call - Call a method which executes and returns control flow AND data.
+class FCall : public Stmt{
+	Name_vec arguments; //
+};
+
+
 //
 // class Blck
 //
